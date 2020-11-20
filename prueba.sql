@@ -165,23 +165,9 @@ FROM(
 WHERE sobre_300.subtotal >= 300;
 
 -- ¿Cuantos clientes han comprado el producto 6?
-SELECT clientes.nombre, clientes.rut, clientes.direccion
-FROM(
-    -- Subquery formado por "facturas" y "listado_productos"
-    -- para obtener cuales "facturas" tienen el item con id 6
-    -- y extraer de "facturas" el id del cliente(s)
-    -- finalmente genera una tabla con solo los id's deseados
-    SELECT item.cliente_id
-    FROM(
-        SELECT facturas.cliente_id, facturas.num_factura, listados_productos.producto_id
-        FROM facturas INNER JOIN listados_productos
-        ON facturas.id = listados_productos.factura_id
-    ) AS item
-    WHERE item.producto_id = 6
-    GROUP BY item.cliente_id
-    -- Posterior a genera la tabla con los id's deseados
-    -- se hace un join con la tabla "clientes" para extraer
-    -- la informacion personal de los clientes que compraron
-    -- el item 6
-) AS list_item_clientes INNER JOIN clientes
-ON clientes.id = list_item_clientes.cliente_id;
+SELECT DISTINCT clientes.nombre, clientes.rut, clientes.direccion
+FROM clientes INNER JOIN facturas               -- Join entre clientes y facturas
+ON clientes.id = facturas.cliente_id  
+INNER JOIN listados_productos                   -- Join a tabla resultade con listados_productos
+ON facturas.id = listados_productos.factura_id  
+WHERE listados_productos.producto_id = 6; 
